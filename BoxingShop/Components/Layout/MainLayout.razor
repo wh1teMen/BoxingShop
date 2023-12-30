@@ -1,0 +1,33 @@
+﻿@inherits LayoutComponentBase
+
+<BlazoredToasts />
+<link href="{YOUR APP ASSEMBLY NAME}.styles.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<header >
+    <h1 style="margin-left:20px;">Добро пожаловать в интернет магазин "KingRing"</h1> 
+   <BoxingShop.Components.Pages.Timer></BoxingShop.Components.Pages.Timer>
+</header>
+
+<nav style="margin-left:20px;">
+    <a href="/">Главная</a>
+    <a href="products" style="margin-left:20px;">Каталог</a>
+</nav>
+
+@Body
+
+<footer>
+   
+    <p> @DateTime.Now.ToString("hh:mm:ss");
+           
+        
+    </p>
+  
+ 
+
+</footer>
+
+@code { 
+  
+
+    
+}

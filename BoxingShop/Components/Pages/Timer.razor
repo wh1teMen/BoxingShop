@@ -1,0 +1,45 @@
+﻿@rendermode InteractiveServer
+<div class="container text-center">
+    <div class="row align-items-center">
+        <p>Осталось до окончания акции:</p>
+        <div class="col">
+            <p>@days</p>
+            <span>Дней</span>
+        </div>
+        <div class="col">
+            <p>@hours</p>
+            <span>Часов</span>
+        </div>
+        <div class="col">
+            <p>@minutes</p>
+            <span>Минут</span>
+        </div>
+        <div class="col">
+            <p>@seconds</p>
+            <span>Секунд</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    private System.Timers.Timer timer = new System.Timers.Timer(1000);
+    private int days, hours, minutes, seconds;
+    private DateTime date;
+
+    protected override async Task OnInitializedAsync()
+    {
+        date = new DateTime(2023, 12, 31);
+        timer.Elapsed += (sender, EventArgs) => UpdateTime();       
+        timer.Start();
+        await base.OnInitializedAsync();
+    }
+    private void UpdateTime()
+    {
+        var Time_has_passed = date - DateTime.Now;
+        days = Time_has_passed.Days;
+        hours = Time_has_passed.Hours;
+        minutes = Time_has_passed.Minutes;
+        seconds = Time_has_passed.Seconds;
+        InvokeAsync(StateHasChanged);
+    }   
+}
