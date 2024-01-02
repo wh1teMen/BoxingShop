@@ -1,32 +1,5 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 <PageTitle>Home</PageTitle>
-@* <h2>@remainingTime</h2> *@
-
-
-
-
-@* @code
-{
-    private string remainingTime;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await UpdateRemainingTime();
-    }
-
-    private async Task UpdateRemainingTime()
-    {
-        DateTime endDate = new DateTime(2023, 12, 31, 23, 59, 59); // Здесь можно указать конечную дату акции не Новый год))
-        TimeSpan timeLeft = endDate - DateTime.Now;
-
-        remainingTime = $"{timeLeft.Days} дней, {timeLeft.Hours} часов, {timeLeft.Minutes} минут, {timeLeft.Seconds} секунд";
-        await Task.Delay(1000);
-        await UpdateRemainingTime();
-    }
-
-  
-    
-
-   
-} *@
+<h1 style="margin-left:20px;">Добро пожаловать в интернет магазин "KingRing"</h1>
+@DateTime.Now.ToString("hh:mm:ss");

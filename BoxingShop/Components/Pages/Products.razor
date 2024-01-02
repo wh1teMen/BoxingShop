@@ -1,9 +1,13 @@
 ﻿@page "/products"
 @rendermode InteractiveServer
 @inject IToastService toastService
-<BlazoredToasts />
+<BlazoredToasts IconType="IconType.FontAwesome"
+                Position="ToastPosition.TopRight"
+                Timeout="5"
+                SuccessClass="success-toast-override" />
+<link href="_content/Blazored.Toast/blazored-toast.css" rel="stylesheet" />
 
- <div style="display:flex; flex-wrap:wrap" id="qqw">
+<div style="display:flex; flex-wrap:wrap" id="qqw">
     @if (flagModal)
     {
         <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);"
@@ -11,7 +15,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Информация о товаре @tmpGloves.Brand</h4>                       
+                        <h4 class="modal-title">Информация о товаре @tmpGloves.Brand</h4>
                     </div>
                     <div class="modal-body">
                         <div style="margin-left:20px;">
@@ -27,61 +31,108 @@
                     </div>
                 </div>
             </div>
-        </div>       
+        </div>
     }
 
-  
 
 
 
-@foreach (var el in gloves)
-    {           
-        <div style="width:400px;min-height:400px;margin:10px;border:2px solid black; border-radius:20px;" >
+
+    @foreach (var el in gloves)
+    {
+        <div style="width:300px;min-height:300px;margin:10px;border:2px solid grey; border-radius:20px;">
+
+           
 
             <div style="display:flex;justify-content:center;">
-                <img src="@el.UrlImg" style="width:200px;height:200px" />
+                <img src="@el.UrlImg" style="width:150px;height:150px" />
             </div>
-            <div style="display:flex;">
-                <div style="margin-left:20px; display:flex;text-align:center;justify-content:center">                   
-                    <h4 style="margin-top:20px">Цена: @el.Price руб.</h4>                
-                </div>             
-            </div>
-           
-                <div style="padding:10px;display:flex; justify-content:space-between;margin-top:50px">
-                    <button style="height:40px" class="btn btn-primary" @onclick="@(() => toastService.ShowSuccess($"Добавляем в корзину Перчатки: {el.Brand} Цвет: {el.Color} \nЦена:{el.Price} руб"))">КУПИТЬ</button>
-                    <button class="btn btn-primary" @onclick="()=> modalInfoOpen(el)" style="">Информация</button>
+
+
+
+
+
+            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center">
+                <div style="margin-top:10px">
+                    <h5>Бренд: @el.Brand</h5>
                 </div>
-           
+
+               
+                <div style="margin-left:20px; display:flex;text-align:center;justify-content:center">
+                    <h4 style="margin-top:10px">Цена: @el.Price руб.</h4>
+                </div>
+            </div>
+
+            <div style="padding:10px;display:flex; justify-content:space-between;margin-top:15px">
+                <button style="height:40px" class="btn btn-outline-success" @onclick="@(() =>{addOrders(el);
+                    var sb = new System.Text.StringBuilder();
+                    foreach (var item in GetOrders())
+                    {
+
+                         sb.AppendLine($"{item.Brand}  \nЦена: {item.Price} руб = {item.CountProduct} шт");
+
+
+                    }
+                           toastService.ShowSuccess(sb.ToString()+"\n");
+
+                })">
+                    КУПИТЬ
+                </button>
+                <button class="btn btn-outline-info" @onclick="()=> modalInfoOpen(el)" style="">Информация</button>
+            </div>
+
         </div>
 
-    
-    
-    
-}
-</div>
 
+
+
+    }
+</div>
 
 @code
 {
-    List<Model.Gloves> gloves = new List<Model.Gloves>()
+    List<Model.Product> gloves = new List<Model.Product>()
     {
-        new Model.Gloves{Id=1,Brand="Rival", Color = "Red", Size = 10,Price =24870,UrlImg = "https://static.insales-cdn.com/images/products/1/2566/768567814/8.png" , Description ="Модель изготовлена из износоустойчивого волокна и многослойной вспененной внутренней прокладки, которая обеспечивает идеальную посадку, оптимальную защиту и передачу силы удара."},
-        new Model.Gloves{Id=2,Brand="Hayabusa", Color = "Black",Price = 36970,UrlImg = "https://static.insales-cdn.com/images/products/1/3287/789466327/3.png", Size = 14, Description =" Лимитированная серия перчаток премиум класса с внешней обивкой из кожи.Перчатки Kanpeki снабжены «начинкой», состоящей из пяти слоёв пены, которая обеспечивает максимальную защиту при нанесении самых тяжёлых ударов."},
-        new Model.Gloves{Id=3,Brand="Everlast", Color = "Brown",Price = 5190, Size = 10,UrlImg = "https://static.insales-cdn.com/images/products/1/7483/748371259/9.jpg", Description ="Everlast 1910 Classic PU - выполненные в винтажном стиле это тренировочные перчатки с современным взглядом на легендарную серию боксерских перчаток от Everlast."},
-        new Model.Gloves{Id=4,Brand="Fairtex", Color = "Khaki",Price = 14270, Size = 14,UrlImg = "https://static.insales-cdn.com/images/products/1/4047/263991247/pr_17203_1.png", Description ="Классические тайские перчатки.Качество перчаток для тайского бокса Fairtex поражает - обработанные швы, подогнанные друг к другу части перчаток, удобные манжеты."}
+        new Model.Product{Id=1,Brand="Rival", Color = "Red", Size = 10,Price =24870,UrlImg = "https://static.insales-cdn.com/images/products/1/2566/768567814/8.png" , Description ="Модель изготовлена из износоустойчивого волокна и многослойной вспененной внутренней прокладки, которая обеспечивает идеальную посадку, оптимальную защиту и передачу силы удара."},
+        new Model.Product{Id=2,Brand="Hayabusa", Color = "Black",Price = 36970,UrlImg = "https://static.insales-cdn.com/images/products/1/3287/789466327/3.png", Size = 14, Description =" Лимитированная серия перчаток премиум класса с внешней обивкой из кожи.Перчатки Kanpeki снабжены «начинкой», состоящей из пяти слоёв пены, которая обеспечивает максимальную защиту при нанесении самых тяжёлых ударов."},
+        new Model.Product{Id=3,Brand="Everlast", Color = "Brown",Price = 5190, Size = 10,UrlImg = "https://static.insales-cdn.com/images/products/1/7483/748371259/9.jpg", Description ="Everlast 1910 Classic PU - выполненные в винтажном стиле это тренировочные перчатки с современным взглядом на легендарную серию боксерских перчаток от Everlast."},
+        new Model.Product{Id=4,Brand="Fairtex", Color = "Khaki",Price = 14270, Size = 14,UrlImg = "https://static.insales-cdn.com/images/products/1/4047/263991247/pr_17203_1.png", Description ="Классические тайские перчатки.Качество перчаток для тайского бокса Fairtex поражает - обработанные швы, подогнанные друг к другу части перчаток, удобные манжеты."}
 
     };
+
+    List<Model.Product> order = new List<Model.Product>();
     bool flagModal = false;
-    Model.Gloves? tmpGloves;
-    public void modalInfoOpen(Model.Gloves? el)
+    Model.Product? tmpGloves;
+    public void modalInfoOpen(Model.Product? el)
     {
         tmpGloves = el;
-        flagModal = true;        
+        flagModal = true;
     }
     void modalInfoCloce()
     {
         flagModal = false;
     }
+
+
+    void addOrders(Model.Product gloves_)
+    {
+        if (order.Contains(gloves_))
+        {         
+            gloves_.CountProduct++;
+            return;
+        }
+        order.Add(gloves_);
+    }
+    List<Model.Product> GetOrders() { return order; }
+
+
+
+
+
+
+
+
+
 
 
 

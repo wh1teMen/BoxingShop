@@ -1,6 +1,6 @@
 ﻿namespace BoxingShop.Model
 {
-    public class Gloves
+    public class Product
     {
         public int Id { get; set; }
         public string? Brand { get; set; }
@@ -9,5 +9,6 @@
         public string? Description {  get; set; }
         public decimal Price {  get; set; }
         public string? UrlImg {  get; set; }
+        public int CountProduct { get; set; } = 1;
     }
 }
