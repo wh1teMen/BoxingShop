@@ -1,0 +1,226 @@
+﻿@rendermode InteractiveServer
+@inject IToastService toastService
+@using static BoxingShop.ContextDB.AppContext
+<BlazoredToasts IconType="IconType.FontAwesome"
+                Position="ToastPosition.TopRight"
+                Timeout="5"
+                SuccessClass="success-toast-override" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+<div style="display:flex; flex-wrap:wrap" id="qqw">
+    @if (flagModal)
+    {
+        <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);"
+             aria-modal="true" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Информация о товаре @tmpGloves.Brand</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-left:20px;">
+                            <h3>Бренд: @tmpGloves.Brand</h3>
+                            <p>Цвет: @tmpGloves.Color</p>
+                            <p>Размер: @tmpGloves.Size унций</p>
+                            <h4>Цена: @tmpGloves.Price руб.</h4>
+                            <p>@tmpGloves.Description</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" @onclick=modalInfoCloce>OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+
+    @foreach (var el in product)
+    {
+        <div style="width:300px;min-height:300px;margin:10px;/* border:2px solid grey; border-radius:20px; */">
+            
+            
+
+        <div class="card" style="width: 18rem;">
+                <div style="display:flex;margin:5px">
+                    <div>
+                        <a href="/products/update/@el.Id" class="btn btn-outline-warning"   role="button" data-bs-toggle="button">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                </svg>
+                            </span>
+                            </a>
+                     
+                    </div>
+
+                    <div style="margin-left:5px;">
+                        <button class="btn btn-outline-danger"   @onclick=@(()=>DeleteProduct(el))>
+                           
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                </svg>
+                                
+                            </span>
+                          
+                        </button>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:center;">
+            <img src="@el.UrlImg" style="width:150px;height:150px" class="card-img-top" alt="...">
+            </div>
+            <div class="card-body">
+                    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center">
+                <h5 class="card-title"><a href="/products/@el.Id">Бренд: @el.Brand</a></h5>
+                <p class="card-text">Цена: @el.Price руб.</p>
+                </div>
+                <div style="padding:10px;display:flex; justify-content:center;margin-top:15px">
+                    <button style="height:40px" class="btn btn-outline-success" @onclick="@(() =>{addOrders(el);
+                    var sb = new System.Text.StringBuilder();
+                    foreach (var item in GetOrders())
+                    {
+
+                         sb.AppendLine($"{item.Brand}  \nЦена: {item.Price} руб = {item.CountProduct} шт");
+                          var newOrder = new Model.ShopingCart { Brand = item.Brand, Price = item.Price,Color=item.Color,CountProduct = item.CountProduct, UrlImg = item.UrlImg };
+
+                         AddCarts(newOrder);
+                    }
+                           toastService.ShowSuccess(sb.ToString()+"\n");
+
+                })">
+                            КУПИТЬ <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+      <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+    </svg></span>
+                    </button>
+                   
+                </div>
+              
+                   
+            </div>
+        </div>
+
+ </div>
+
+
+    }
+</div>
+
+@* async Task Add()
+    {
+
+        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
+        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
+        {
+            dbContext.Products.Add(new Model.Product { Id = 1, Brand = "Rival", Color = "Red", Size = 10, Price = 24870, UrlImg = "https://static.insales-cdn.com/images/products/1/2566/768567814/8.png", Description = "Модель изготовлена из износоустойчивого волокна и многослойной вспененной внутренней прокладки, которая обеспечивает идеальную посадку, оптимальную защиту и передачу силы удара." });
+            dbContext.Products.Add(new Model.Product { Id = 2, Brand = "Hayabusa", Color = "Black", Price = 36970, UrlImg = "https://static.insales-cdn.com/images/products/1/3287/789466327/3.png", Size = 14, Description = " Лимитированная серия перчаток премиум класса с внешней обивкой из кожи.Перчатки Kanpeki снабжены «начинкой», состоящей из пяти слоёв пены, которая обеспечивает максимальную защиту при нанесении самых тяжёлых ударов." });
+            dbContext.Products.Add(new Model.Product { Id = 3, Brand = "Everlast", Color = "Brown", Price = 5190, Size = 10, UrlImg = "https://static.insales-cdn.com/images/products/1/7483/748371259/9.jpg", Description = "Everlast 1910 Classic PU - выполненные в винтажном стиле это тренировочные перчатки с современным взглядом на легендарную серию боксерских перчаток от Everlast." });
+            dbContext.Products.Add(new Model.Product { Id = 4, Brand = "Fairtex", Color = "Khaki", Price = 14270, Size = 14, UrlImg = "https://static.insales-cdn.com/images/products/1/4047/263991247/pr_17203_1.png", Description = "Классические тайские перчатки.Качество перчаток для тайского бокса Fairtex поражает - обработанные швы, подогнанные друг к другу части перчаток, удобные манжеты." });
+            dbContext.SaveChangesAsync();
+            await LoadProducts();
+        }
+
+    } *@
+
+@code {
+    List<Model.Product> product = new List<Model.Product>();
+    List<Model.ShopingCart>carts = new List<Model.ShopingCart>();
+    int indexUpdate;
+
+    async Task LoadProducts()
+    {
+
+        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
+        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
+        {
+            product = await dbContext.Products.ToListAsync();
+        }
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+       
+
+        await LoadProducts();
+      
+
+    }
+   
+
+
+
+
+    List<Model.Product> order = new List<Model.Product>();
+    bool flagModal = false;
+    Model.Product? tmpGloves;
+    public void modalInfoOpen(Model.Product? el)
+    {
+        tmpGloves = el;
+        flagModal = true;
+    }
+
+
+    async Task addOrders(Model.Product gloves_)
+    {
+        if (order.Contains(gloves_))
+        {
+            gloves_.CountProduct++;
+            return;
+        }
+        order.Add(gloves_);
+
+
+    }
+
+    async Task AddCarts(Model.ShopingCart othercarts)
+    {
+
+        carts.Add(othercarts);
+        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
+        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
+        {
+            Model.ShopingCart t = dbContext.Carts.FirstOrDefault(x => x.Brand == othercarts.Brand);
+            if (t != null)
+            {
+                t.CountProduct++;
+                await dbContext.SaveChangesAsync();
+                return;
+            }
+            else
+            {
+                carts.ForEach(x => dbContext.Carts.AddAsync(x));
+                dbContext.SaveChanges();
+                return;
+            }
+        }
+    }
+    List<Model.Product> GetOrders() { return order; }
+
+
+    void modalInfoCloce()
+    {
+        flagModal = false;
+    }
+    async Task DeleteProduct(Model.Product product)
+    {
+        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
+        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
+        {
+
+            var el =dbContext.Products.FirstOrDefault(t => t.Id == product.Id);
+            if (el != null)
+            {
+                dbContext.Products.Remove(el);
+                dbContext.SaveChanges();
+                await LoadProducts();
+            }
+
+
+
+        }
+        
+    }
+
+}

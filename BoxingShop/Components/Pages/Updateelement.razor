@@ -1,0 +1,122 @@
+﻿@page "/products/update/{ProductID:int}"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<div >
+    <div style="width:1000px;min-height:500px;margin-right:50px;box-sizing:border-box;">
+        <div style="text-align:center">
+            <h1>Изменить информацию о товаре:</h1>
+        </div>         
+                <form style="min-height:300px;">
+                    <div class="mb-3 row">
+                        <label for="Brand" class="col-sm-2 col-form-label"style="position:relative;left:50px;font-size:24px;">Бренд:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="Brand" @bind=@UpdateProduct.Brand placeholder="Введите бренд товара">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                <label for="Color" class="col-sm-2 col-form-label" style="position:relative;left:50px;font-size:24px;">Цвет:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="Color" @bind=@UpdateProduct.Color placeholder="Введите цвет товара">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="Size" class="col-sm-2 col-form-label" style="position:relative;left:50px;font-size:24px;" >Размер:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="Size" @bind=@UpdateProduct.Size placeholder="Введите размер(*если есть)">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                <label for="Price" class="col-sm-2 col-form-label" style="position:relative;left:50px;font-size:24px;">Цена:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="Price" @bind=@UpdateProduct.Price placeholder="Введите цену товара">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                <label for="UrlImg" class="col-sm-2 col-form-label" style="position:relative;left:50px;font-size:24px;">Ссылка:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="UrlImg" @bind=@UpdateProduct.UrlImg placeholder="Введите ссылку на изображение">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                <label for="Description" class="col-sm-2 col-form-label" style="position:relative;left:50px;font-size:24px;">Описание:</label>
+                        <div class="col-sm-10">
+                            <textarea type="text" class="form-control" id="Description" @bind=@UpdateProduct.Description placeholder="Введите описание товара" />
+                        </div>
+                    </div>
+                </form>
+           
+    </div>
+
+    <div style="display:flex;justify-content:center">
+        <button type="button" class="btn btn-primary" @onclick="Update" style="width:300px;">Изменить</button>
+    </div>
+
+</div>
+
+
+
+@code {
+    [Parameter]
+    public int ProductID { get; set; }
+    Model.Product prod;
+    Model.Product UpdateProduct = new Model.Product();
+    protected override void OnInitialized()
+    {
+        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
+        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
+        {
+            prod = dbContext.Products.FirstOrDefault(t => t.Id == ProductID);
+        }
+    }
+    void GoBack()
+    {
+        NavigationManager.NavigateTo("/products");
+    }
+    async Task Update()
+    {
+
+        if (string.IsNullOrWhiteSpace(UpdateProduct.Brand))
+        {
+            UpdateProduct.Brand = prod.Brand;
+        }
+        if (string.IsNullOrWhiteSpace(UpdateProduct.Color))
+        {
+            UpdateProduct.Color = prod.Color;
+        }
+        if (UpdateProduct.Size==0)
+        {
+            UpdateProduct.Size = prod.Size;
+        }
+        if (UpdateProduct.Price == 0)
+        {
+            UpdateProduct.Price = prod.Price;
+        }
+        if (string.IsNullOrWhiteSpace(UpdateProduct.UrlImg))
+        {
+            UpdateProduct.UrlImg = prod.UrlImg;
+        }
+        if (string.IsNullOrWhiteSpace(UpdateProduct.Description))
+        {
+            UpdateProduct.Description = prod.Description;
+        }
+        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
+        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
+        {
+            prod.Brand = UpdateProduct.Brand;
+            prod.Color = UpdateProduct.Color;
+            prod.Size = UpdateProduct.Size;
+            prod.Price = UpdateProduct.Price;
+            prod.UrlImg = UpdateProduct.UrlImg;
+            prod.Description = UpdateProduct.Description;
+            dbContext.Products.Update(prod);
+           await dbContext.SaveChangesAsync();
+                       
+        }
+        NavigationManager.NavigateTo("/products");
+
+
+        
+    }
+
+}

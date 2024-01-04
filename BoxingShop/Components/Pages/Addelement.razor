@@ -1,0 +1,102 @@
+﻿@rendermode InteractiveServer
+@inject IToastService toastService
+@using System.Drawing;
+
+<button type="button" class="btn btn-outline-secondary" @onclick=modalAddOpen>Добавить новый тиовар</button>
+@if (flagModalAdd)
+{
+    <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);"
+         aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h4 class="modal-title" style="margin-left:70px">Добавление новго товара @NewProduct.Color </h4>
+                        <h1 id="h"></h1>
+                    </div> 
+                    <div>
+                        <button @onclick=modalAddCloce style="border:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z" />
+                            </svg>
+                       </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form  style="min-height:300px;">
+                        <div class="mb-3 row">
+                            <label for="Brand" class="col-sm-2 col-form-label">Бренд:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="Brand"  @bind=@NewProduct.Brand placeholder="Введите бренд товара">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="Color" class="col-sm-2 col-form-label">Цвет:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="Color"  @bind=@NewProduct.Color placeholder="Введите цвет товара">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="Size" class="col-sm-2 col-form-label">Размер:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="Size"  @bind=@NewProduct.Size placeholder="Введите размер(*если есть)">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="Price" class="col-sm-2 col-form-label">Цена:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="Price"  @bind=@NewProduct.Price placeholder="Введите цену товара">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="UrlImg" class="col-sm-2 col-form-label" >Ссылка:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="UrlImg"  @bind=@NewProduct.UrlImg placeholder="Введите ссылку на изображение">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="Description" class="col-sm-2 col-form-label">Описание:</label>
+                            <div class="col-sm-10">
+                                <textarea type="text" class="form-control" id="Description" @bind=@NewProduct.Description placeholder="Введите описание товара" />
+                            </div>
+                        </div>                       
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" @onclick="@(() => { modalAddCloce();  AddProduct(); })">Добавить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@code {
+
+
+    Model.Product NewProduct = new Model.Product();
+    bool flagModalAdd = false;
+    public void modalAddOpen()
+    {
+        flagModalAdd = true;
+    }
+    void modalAddCloce()
+    {
+        flagModalAdd = false;
+    }
+    async Task AddProduct()
+    {
+        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
+        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
+        {
+            if (NewProduct != null)
+            {
+                dbContext.Products.Add(NewProduct);
+                await dbContext.SaveChangesAsync();
+            }
+
+        }
+    }
+
+}
