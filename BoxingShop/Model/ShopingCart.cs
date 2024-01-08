@@ -10,5 +10,6 @@
         public string? UrlImg { get; set; }
         public int CountProduct { get; set; } = 1;
     }
+
 }
 

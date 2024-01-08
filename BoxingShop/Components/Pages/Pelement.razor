@@ -78,15 +78,13 @@
                 <p class="card-text">Цена: @el.Price руб.</p>
                 </div>
                 <div style="padding:10px;display:flex; justify-content:center;margin-top:15px">
-                    <button style="height:40px" class="btn btn-outline-success" @onclick="@(() =>{addOrders(el);
+                        <button style="height:40px" class="btn btn-outline-success" @onclick="@(() =>{addOrders(el);AddCarts(el);
                     var sb = new System.Text.StringBuilder();
                     foreach (var item in GetOrders())
                     {
 
                          sb.AppendLine($"{item.Brand}  \nЦена: {item.Price} руб = {item.CountProduct} шт");
-                          var newOrder = new Model.ShopingCart { Brand = item.Brand, Price = item.Price,Color=item.Color,CountProduct = item.CountProduct, UrlImg = item.UrlImg };
-
-                         AddCarts(newOrder);
+                        
                     }
                            toastService.ShowSuccess(sb.ToString()+"\n");
 
@@ -97,32 +95,15 @@
                     </button>
                    
                 </div>
+               
               
                    
             </div>
+               
         </div>
-
  </div>
-
-
     }
 </div>
-
-@* async Task Add()
-    {
-
-        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
-        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
-        {
-            dbContext.Products.Add(new Model.Product { Id = 1, Brand = "Rival", Color = "Red", Size = 10, Price = 24870, UrlImg = "https://static.insales-cdn.com/images/products/1/2566/768567814/8.png", Description = "Модель изготовлена из износоустойчивого волокна и многослойной вспененной внутренней прокладки, которая обеспечивает идеальную посадку, оптимальную защиту и передачу силы удара." });
-            dbContext.Products.Add(new Model.Product { Id = 2, Brand = "Hayabusa", Color = "Black", Price = 36970, UrlImg = "https://static.insales-cdn.com/images/products/1/3287/789466327/3.png", Size = 14, Description = " Лимитированная серия перчаток премиум класса с внешней обивкой из кожи.Перчатки Kanpeki снабжены «начинкой», состоящей из пяти слоёв пены, которая обеспечивает максимальную защиту при нанесении самых тяжёлых ударов." });
-            dbContext.Products.Add(new Model.Product { Id = 3, Brand = "Everlast", Color = "Brown", Price = 5190, Size = 10, UrlImg = "https://static.insales-cdn.com/images/products/1/7483/748371259/9.jpg", Description = "Everlast 1910 Classic PU - выполненные в винтажном стиле это тренировочные перчатки с современным взглядом на легендарную серию боксерских перчаток от Everlast." });
-            dbContext.Products.Add(new Model.Product { Id = 4, Brand = "Fairtex", Color = "Khaki", Price = 14270, Size = 14, UrlImg = "https://static.insales-cdn.com/images/products/1/4047/263991247/pr_17203_1.png", Description = "Классические тайские перчатки.Качество перчаток для тайского бокса Fairtex поражает - обработанные швы, подогнанные друг к другу части перчаток, удобные манжеты." });
-            dbContext.SaveChangesAsync();
-            await LoadProducts();
-        }
-
-    } *@
 
 @code {
     List<Model.Product> product = new List<Model.Product>();
@@ -139,12 +120,23 @@
         }
 
     }
+
+    async Task LoadCarts()
+    {
+
+        var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
+        using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
+        {
+            carts = await dbContext.Carts.ToListAsync();
+        }
+
+    }
     protected override async Task OnInitializedAsync()
     {
-       
+
 
         await LoadProducts();
-      
+
 
     }
    
@@ -152,7 +144,7 @@
 
 
 
-    List<Model.Product> order = new List<Model.Product>();
+    List<Model.Product> order = new List<Model.Product>(); 
     bool flagModal = false;
     Model.Product? tmpGloves;
     public void modalInfoOpen(Model.Product? el)
@@ -160,6 +152,7 @@
         tmpGloves = el;
         flagModal = true;
     }
+    
 
 
     async Task addOrders(Model.Product gloves_)
@@ -174,28 +167,43 @@
 
     }
 
-    async Task AddCarts(Model.ShopingCart othercarts)
+    Model.ShopingCart? tmpCartEl;
+    async Task AddCarts(Model.Product item)
     {
+        tmpCartEl = null;
+        tmpCartEl = new Model.ShopingCart { Brand = item.Brand, Price = item.Price, Color = item.Color, CountProduct = item.CountProduct, UrlImg = item.UrlImg, Size=item.Size };
 
-        carts.Add(othercarts);
         var options = new DbContextOptionsBuilder<BoxingShop.ContextDB.AppContext>().UseSqlite("Data Source=Shop.db").Options;
         using (var dbContext = new BoxingShop.ContextDB.AppContext(options))
         {
-            Model.ShopingCart t = dbContext.Carts.FirstOrDefault(x => x.Brand == othercarts.Brand);
-            if (t != null)
+
+            var findeCartElement = dbContext.Carts.FirstOrDefault(x => x.Brand == tmpCartEl.Brand && x.Color == tmpCartEl.Color && x.Price == tmpCartEl.Price);
+            if (findeCartElement != null)
             {
-                t.CountProduct++;
+
+                findeCartElement.Brand = findeCartElement.Brand;
+                findeCartElement.Color = findeCartElement.Color;
+                findeCartElement.Size = findeCartElement.Size;
+                findeCartElement.Price = findeCartElement.Price;
+                findeCartElement.UrlImg = findeCartElement.UrlImg;
+                findeCartElement.CountProduct = findeCartElement.CountProduct + 1;
+                dbContext.Carts.Update(findeCartElement);
                 await dbContext.SaveChangesAsync();
-                return;
+
+
             }
             else
             {
-                carts.ForEach(x => dbContext.Carts.AddAsync(x));
-                dbContext.SaveChanges();
-                return;
+                dbContext.Add(tmpCartEl);
+                await dbContext.SaveChangesAsync();
+
             }
         }
+        return;
+       
     }
+ 
+   
     List<Model.Product> GetOrders() { return order; }
 
 
